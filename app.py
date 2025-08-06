@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import io
+import requests
 from datetime import datetime, timedelta
 
 dateFormats = ['%Y-%m-%d %H:%M:%S.%f',
@@ -62,9 +64,19 @@ def GetDateFormat(value: str) -> str:
       except ValueError:
          continue
    return False
-   
+
+@st.cache_data(ttl=3600)
+def descargar_datos():
+    file_id = "1DEIZnjwUrQ2_EkjlB8jvsSPlfZ3y1elc"
+    download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+
+    response = requests.get(download_url)
+    response.raise_for_status()  # lanza error si falla la descarga
+
+    # Leer el contenido como archivo CSV
+    return pd.read_csv(io.StringIO(response.text))  
 # Cargar CSV
-df = pd.read_csv("Bota.csv")
+df = descargar_datos()
 df1=df
 df1["Time"]=df1["Time"].apply(GetDateFromString)
 df1["Time"]=df1["Time"].apply(GetStringFromDateHM)
