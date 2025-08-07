@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import io
 import requests
+import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
 dateFormats = ['%Y-%m-%d %H:%M:%S.%f',
@@ -94,6 +95,42 @@ fecha_fin = st.date_input("End date", min_value=min_date, max_value=max_date, va
 # Filtrado
 df_filtrado = df[(df["Time"] >= pd.to_datetime(fecha_inicio)) & (df["Time"] <= pd.to_datetime(fecha_fin))]
 df_filtrado["Time"]=df_filtrado["Time"].apply(GetStringFromDateHM)
+df_filtrado["Real-time vehicle counting 2"]=df_filtrado["Real-time vehicle counting"]*2.0
+
+
+
+st.title("Dinamic columns visualization")
+
+# Opción para seleccionar qué columnas mostrar (además de 'a')
+columnas_opcionales = ["Real-time vehicle counting", "Real-time vehicle counting 2"]
+seleccionadas = st.multiselect(
+    "Select additional columns to show ( 'Time' column is always showed):",
+    opciones := columnas_opcionales,
+    default=["Real-time vehicle counting"]
+)
+
+# Mostrar DataFrame con la columna 'a' + las seleccionadas
+columnas_a_mostrar = ['Time'] + seleccionadas
+st.dataframe(df_filtrado[columnas_a_mostrar])
 # Mostrar resultados
-st.write("Filtered data:", df_filtrado)
-st.line_chart(df_filtrado)
+df_filtrado["Time"]=df_filtrado["Time"].apply(GetDateFromString)
+opciones_y = st.multiselect(
+    "Select column(s) to show on the Y axis",
+    options=["Real-time vehicle counting", "Real-time vehicle counting 2"],
+    default=["Real-time vehicle counting"]
+)
+
+# Validar si se seleccionó al menos una
+if opciones_y:
+    fig, ax = plt.subplots()
+    for col in opciones_y:
+        ax.plot(df_filtrado['Time'], df_filtrado[col], label=col)
+    
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Count")
+    ax.set_title("Plot of selected columns")
+    ax.legend()
+    ax.tick_params(axis='x', labelrotation=45)
+    st.pyplot(fig)
+else:
+    st.warning("Choose at least one column to show.")
