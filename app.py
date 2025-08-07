@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import requests
 import matplotlib.pyplot as plt
+from PIL import Image
 from datetime import datetime, timedelta
 
 dateFormats = ['%Y-%m-%d %H:%M:%S.%f',
@@ -65,6 +66,18 @@ def GetDateFormat(value: str) -> str:
       except ValueError:
          continue
    return False
+# Cargar la imagen
+imagen = Image.open("OIP.jpeg")  # reemplaza por tu ruta o URL
+
+# Crear dos columnas: una para la imagen, otra para el título
+col1, col2 = st.columns([1, 5])  # puedes ajustar proporciones
+
+with col1:
+    st.image(imagen, width=110)
+with col2:
+    st.title("Real-time display of vehicle counts.")
+
+
 
 @st.cache_data(ttl=3600)
 def descargar_datos():
@@ -82,7 +95,7 @@ df1=df
 df1["Time"]=df1["Time"].apply(GetDateFromString)
 df1["Time"]=df1["Time"].apply(GetStringFromDateHM)
 # Mostrar los datos
-st.title("Real-time display of vehicle counts.")
+#st.title()
 st.write("Complete data:", df1)
 df["Time"]=pd.to_datetime(df["Time"])
 # Selección de rango de fechas
