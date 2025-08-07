@@ -96,3 +96,4 @@ df_filtrado = df[(df["Time"] >= pd.to_datetime(fecha_inicio)) & (df["Time"] <= p
 df_filtrado["Time"]=df_filtrado["Time"].apply(GetStringFromDateHM)
 # Mostrar resultados
 st.write("Filtered data:", df_filtrado)
+st.line_chart(df_filtrado)
